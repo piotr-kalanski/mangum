@@ -82,6 +82,13 @@ class AbstractHandler(metaclass=ABCMeta):
                 trigger_event, trigger_context, **kwargs  # type: ignore
             )
 
+        if "requestContext" not in trigger_event and "queryParameters" in trigger_event:
+            from . import AliyunApiGateway
+
+            return AliyunApiGateway(
+                trigger_event, trigger_context, **kwargs  # type: ignore
+            )
+
         raise TypeError("Unable to determine handler from trigger event")
 
     @staticmethod
