@@ -1,5 +1,6 @@
 import base64
 from abc import ABCMeta, abstractmethod
+import json
 from typing import Dict, Any, TYPE_CHECKING, Tuple, List
 
 from .. import Response, Request
@@ -53,6 +54,13 @@ class AbstractHandler(metaclass=ABCMeta):
         """
 
         # These should be ordered from most specific to least for best accuracy
+        if (type(trigger_event) == bytes):
+            from . import AliyunApiGateway
+
+            return AliyunApiGateway(
+                json.loads(trigger_event), trigger_context, **kwargs  # type: ignore
+            )
+
         if (
             "requestContext" in trigger_event
             and "elb" in trigger_event["requestContext"]
@@ -79,13 +87,6 @@ class AbstractHandler(metaclass=ABCMeta):
             from . import AwsApiGateway
 
             return AwsApiGateway(
-                trigger_event, trigger_context, **kwargs  # type: ignore
-            )
-
-        if "requestContext" not in trigger_event and "queryParameters" in trigger_event:
-            from . import AliyunApiGateway
-
-            return AliyunApiGateway(
                 trigger_event, trigger_context, **kwargs  # type: ignore
             )
 
